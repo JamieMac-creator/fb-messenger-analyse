@@ -8,26 +8,28 @@ CHAT_DIR="data/inbox/asspurgers_1559279850760052"
 # Second sed: remove newlines
 # Third sed: remove awkward backslash from messages
 # Fourth sed: remove percent signs
+mkdir -p cleaned
 
 for file in ${CHAT_DIR}/*.json; do
     echo "Processing $file"
     cat ${file} | sed -E 's#\\u00([0-9a-f]{2})#\\x\L\1#g' | \
-        sed 's#\\[nrt]# #g' | \
-        sed 's#\\.##g'| \
-        sed 's#\\.##g'| \
+        sed 's#\\[nrt\\]# #g' | \
+        sed 's#\\",$#",#g' \
         > sedded.json
     sedded=$(cat sedded.json)
-    if [ $(basename ${file}) = "message_1.json" ]; then
-        echo "$sedded" > messages_to_parse.json
-    else
-        echo "$sedded" > jq .
-        # TODO: get rid of jq
-        echo "$sedded" | jq -s '.[0] * {messages: (.[0].messages + .[1].messages)}' messages_to_parse.json - > temp_messages_to_parse.json
-        mv temp_messages_to_parse.json messages_to_parse.json
-    fi
+    echo "$sedded" > cleaned/$(basename ${file})
+    #sed -i 's#\\[trn]##g' cleaned/$(basename ${file})
 done
+    # if [ $(basename ${file}) = "message_1.json" ]; then
+    #     echo "$sedded" > messages_to_parse.json
+    # else
+    #     echo "$sedded" > jq .
+    #     # TODO: get rid of jq
+    #     echo "$sedded" | jq -s '.[0] * {messages: (.[0].messages + .[1].messages)}' messages_to_parse.json - > temp_messages_to_parse.json
+    #     mv temp_messages_to_parse.json messages_to_parse.json
+    # fi
 
-#rm sedded.json
+rm sedded.json
 
 # Now pass off to a python script to complete analysis
 
