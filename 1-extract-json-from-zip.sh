@@ -1,12 +1,6 @@
 DIR="/mnt/c/MyFiles/PersonalProjects/fb/2025dump"
 PATTERN="facebook-*"
 
-process_file() {
-    local file="$1"
-
-    # Add your processing logic here
-}
-
 if [ ! -d "$DIR" ]; then
     echo "Directory $DIR not found."
     exit 1
